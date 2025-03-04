@@ -9,7 +9,6 @@ inputs:
   dockerfile:
     description: 'Path to the Dockerfile'
     required: true
-    default: 'Dockerfile'
   image_name:
     description: 'Name of the Docker image'
     required: true
