@@ -1,0 +1,55 @@
+name: 'Container Security Scan'
+description: 'Builds a Docker image and performs a security scan using Trivy.'
+
+inputs:
+  registry:
+    description: 'Docker registry to use'
+    required: false
+    default: 'ghcr.io'
+  dockerfile:
+    description: 'Path to the Dockerfile'
+    required: false
+    default: 'Dockerfile'
+  image_name:
+    description: 'Name of the Docker image'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Docker build
+      run: docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image_name }} .
+      shell: bash
+
+    - name: Create Output Folder
+      run: mkdir -p output
+      shell: bash
+
+    - name: Run security scan on the container
+      uses: aquasecurity/trivy-action@0.12.0
+      id: scan
+      with:
+        image-ref: ${{ inputs.image_name }}
+        format: template
+        template: "@/contrib/html.tpl"
+        output: ./output/dat-api-report.html
+        severity: 'CRITICAL,HIGH'
+
+    - name: Use the Upload Artifact GitHub Action
+      uses: actions/upload-artifact@v4
+      with:
+        name: container-scan-report
+        path: output
+
+    - name: Remove previous Trivy report
+      run: rm -rf /data/watchtower/dat/container-results/dat-api/dat-api-report.html
+      shell: bash
+
+    - name: Download artifacts to the computer
+      uses: actions/download-artifact@v4
+      with:
+        name: container-scan-report
+        path: /data/watchtower/dat/container-results/dat-api
