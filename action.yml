@@ -15,6 +15,12 @@ inputs:
   env_file:
     description: 'Path to the .env file (optional)'
     required: false
+  cleanup_path:
+    description: 'Path for cleaning up Trivy report'
+    required: true
+  output_path:
+    description: 'Output path for the Trivy report'
+    required: true
 
 runs:
   using: 'composite'
@@ -49,7 +55,7 @@ runs:
         image-ref: ${{ inputs.image_name }}
         format: template
         template: "@/contrib/html.tpl"
-        output: ./output/dat-api-report.html
+        output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
 
     - name: Use the Upload Artifact GitHub Action
@@ -59,7 +65,7 @@ runs:
         path: output
 
     - name: Remove previous Trivy report
-      run: rm -rf /data/watchtower/dat/container-results/dat-api/dat-api-report.html
+      run: rm -rf ${{ inputs.cleanup_path }}
       shell: bash
 
     - name: Download artifacts to the computer
