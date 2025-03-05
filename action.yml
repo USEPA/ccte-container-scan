@@ -15,11 +15,11 @@ inputs:
   env_file:
     description: 'Path to the .env file (optional)'
     required: false
-  cleanup_path:
-    description: 'Path for cleaning up Trivy report'
-    required: true
   output_path:
     description: 'Output path for the Trivy report'
+    required: true
+  cleanup_path:
+    description: 'Path for cleaning up Trivy report'
     required: true
 
 runs:
