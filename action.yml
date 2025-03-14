@@ -25,6 +25,9 @@ inputs:
   cleanup_path:
     description: 'Path for cleaning up Trivy report'
     required: true
+  watchtower_path:
+    description: 'Path for watchtower for Trivy report'
+    required: true
 
 runs:
   using: 'composite'
@@ -83,4 +86,4 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ env.IMAGE_NAME }}-cs-report
-        path: /data/watchtower/dat/container-results/dat-api
+        path: ${{ inputs.watchtower_path }}
