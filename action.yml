@@ -9,6 +9,10 @@ inputs:
   dockerfile:
     description: 'Path to the Dockerfile'
     required: true
+  context:
+    description: 'Context for Docker build'
+    required: false
+    default: '.'
   image_name:
     description: 'Name of the Docker image'
     required: true
@@ -41,7 +45,7 @@ runs:
       shell: bash
 
     - name: Docker build
-      run: docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image_name }} .
+      run: docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image_name }} ${{ inputs.context }}
       shell: bash
 
     - name: Create Output Folder
