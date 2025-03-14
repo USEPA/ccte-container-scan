@@ -44,12 +44,15 @@ runs:
         echo "New .env file created as new.env"
       shell: bash
 
-    - name: Docker build
+    - name: Set lowercase image name
       run: |
-        # Convert image name to lowercase
+        # Convert the image name to lowercase
         IMAGE_NAME=$(echo "${{ inputs.image_name }}" | tr '[:upper:]' '[:lower:]')
-        # Build the Docker image using the lowercase image name
-        docker build -f "${{ inputs.dockerfile }}" -t "$IMAGE_NAME" "${{ inputs.context }}"
+        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Docker build
+      run: docker build -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.context }}
       shell: bash
 
     - name: Create Output Folder
@@ -60,7 +63,7 @@ runs:
       uses: aquasecurity/trivy-action@0.12.0
       id: scan
       with:
-        image-ref: ${{ inputs.image_name }}
+        image-ref: ${{ env.IMAGE_NAME }}
         format: template
         template: "@/contrib/html.tpl"
         output: ${{ inputs.output_path }}
