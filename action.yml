@@ -45,7 +45,11 @@ runs:
       shell: bash
 
     - name: Docker build
-      run: docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image_name }} ${{ inputs.context }}
+      run: |
+        # Convert image name to lowercase
+        IMAGE_NAME=$(echo "${{ inputs.image_name }}" | tr '[:upper:]' '[:lower:]')
+        # Build the Docker image using the lowercase image name
+        docker build -f "${{ inputs.dockerfile }}" -t "$IMAGE_NAME" "${{ inputs.context }}"
       shell: bash
 
     - name: Create Output Folder
