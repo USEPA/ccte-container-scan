@@ -1,1 +1,106 @@
-jjjjjjjjj
+
+name: 'Container Security Scan'
+description: 'Builds a Docker image and performs a security scan using Trivy.'
+
+inputs:
+  registry:
+    description: 'Docker registry to use'
+    required: false
+    default: 'ghcr.io'
+  dockerfile:
+    description: 'Path to the Dockerfile'
+    required: true
+  context:
+    description: 'Context for Docker build'
+    required: false
+    default: '.'
+  image_name:
+    description: 'Name of the Docker image'
+    required: true
+  env_file:
+    description: 'Path to the .env file (optional)'
+    required: false
+  output_path:
+    description: 'Output path for the Trivy report'
+    required: true
+  cleanup_path:
+    description: 'Path for cleaning up Trivy report'
+    required: true
+  watchtower_path:
+    description: 'Path for watchtower for Trivy report'
+    required: true
+ npmrc_content:
+    description: 'Contents of the .npmrc file (optional)'
+    required: false 
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Load and Create New .env File
+      if: ${{ inputs.env_file }}
+      run: |
+        echo "Loading .env file from ${{ inputs.env_file }}"
+        # Read the existing env_file and process its contents
+        while IFS= read -r line; do
+          # Optionally, process each line here if needed
+          echo "$line" >> new.env
+        done < "${{ inputs.env_file }}"
+        echo "New .env file created as new.env"
+      shell: bash
+
+    - name: Set lowercase image name
+      run: |
+        # Convert the image name to lowercase
+        IMAGE_NAME=$(echo "${{ inputs.image_name }}" | tr '[:upper:]' '[:lower:]')
+        echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+      shell: bash
+      
+    - name: Create .npmrc File from Content
+      if: ${{ inputs.npmrc_content }}
+      run: |
+        echo "Creating .npmrc file from input content"
+        echo "${{ inputs.npmrc_content }}" > .npmrc
+        echo ".npmrc file created from input content"
+      shell: bash
+
+    - name: Contents of .npmrc
+      if: ${{ inputs.npmrc_content }}
+      run: cat .npmrc
+      shell: bash
+
+    - name: Docker build
+      run: docker build -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.context }}
+      shell: bash
+
+    - name: Create Output Folder
+      run: mkdir -p output
+      shell: bash
+
+    - name: Run security scan on the container
+      uses: aquasecurity/trivy-action@0.12.0
+      id: scan
+      with:
+        image-ref: ${{ env.IMAGE_NAME }}
+        format: template
+        template: "@/contrib/html.tpl"
+        output: ${{ inputs.output_path }}
+        severity: 'CRITICAL,HIGH'
+
+    - name: Use the Upload Artifact GitHub Action
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.IMAGE_NAME }}-cs-report
+        path: output
+
+    - name: Remove previous Trivy report
+      run: rm -rf ${{ inputs.cleanup_path }}
+      shell: bash
+
+    - name: Download artifacts to the computer
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.IMAGE_NAME }}-cs-report
+        path: ${{ inputs.watchtower_path }}
