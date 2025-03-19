@@ -41,8 +41,8 @@ jobs:
 
     steps:
       - name: Run Container Security Scan Action
-        uses: ./  # Assumes the action.yml is at the root of the repository
+        uses: USEPA/ccte-container-scan@main
         with:
-          image_name: data-accuracy-tool-dat-api-security-${{ github.head_ref || github.ref_name }}
+          image_name: your-image-name
           npmrc_content: |
             registry=https://registry.npmjs.org/
