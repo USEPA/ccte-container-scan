@@ -44,3 +44,5 @@ jobs:
         uses: ./  # Assumes the action.yml is at the root of the repository
         with:
           image_name: data-accuracy-tool-dat-api-security-${{ github.head_ref || github.ref_name }}
+          npmrc_content: |
+            registry=https://registry.npmjs.org/
