@@ -29,7 +29,7 @@ inputs:
   watchtower_path:
     description: 'Path for watchtower for Trivy report'
     required: true
- npmrc_content:
+  npmrc_content:
     description: 'Contents of the .npmrc file (optional)'
     required: false 
 
