@@ -44,5 +44,8 @@ jobs:
         uses: USEPA/ccte-container-scan@main
         with:
           image_name: your-image-name
+          dockerfile: path to your Dockerfile
+          output_path: ./output/filename
+          cleanup_path: path to previous report file that need to be rm
           npmrc_content: |
             registry=https://registry.npmjs.org/
