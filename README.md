@@ -46,7 +46,7 @@ jobs:
           image_name: your-image-name
           dockerfile: path to your Dockerfile
           output_path: ./output/filename
-          cleanup_path: path to previous report file that need to be rm (e.g /data/watchtower/genra/container-results/genra-nuxt3/genra-nuxt3-report.html)
+          cleanup_path: Path for cleaning up all scan Trivy report (e.g /data/watchtower/genra/container-results/genra-nuxt3/genra-nuxt3-report.html)
           watchtower_path: path where the newest report will be saved (e.g  /data/watchtower/genra/container-results/genra-nuxt3/genra-nuxt3-report.html)
           npmrc_content: |
             registry=https://registry.npmjs.org/
