@@ -43,6 +43,12 @@ runs:
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Pull LFS files
+      run: git lfs pull
+      shell: bash
 
     - name: Load and Create New .env File
       if: ${{ inputs.env_file }}
