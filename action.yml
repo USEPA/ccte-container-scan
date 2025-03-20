@@ -25,13 +25,18 @@ inputs:
     required: true
   cleanup_path:
     description: 'Path for cleaning up Trivy report'
-    required: true
+    required: false
+    default: '.'
   watchtower_path:
     description: 'Path for watchtower for Trivy report'
     required: true
   npmrc_content:
     description: 'Contents of the .npmrc file (optional)'
     required: false 
+  build_args:
+    description: 'Contents of the .npmrc file (optional)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -72,7 +77,7 @@ runs:
       shell: bash
 
     - name: Docker build
-      run: docker build -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.context }}
+      run: docker build -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.build_args }} ${{ inputs.context }}
       shell: bash
 
     - name: Create Output Folder
