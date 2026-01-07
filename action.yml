@@ -99,6 +99,7 @@ runs:
         template: "@/contrib/html.tpl"
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
+        timeout: 20m
 
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
