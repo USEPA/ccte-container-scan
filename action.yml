@@ -96,7 +96,7 @@ runs:
       with:
         image-ref: ${{ env.IMAGE_NAME }}
         format: template
-        template: "@/contrib/html.tpl"
+        template: "@$HOME/.local/bin/trivy-bin/contrib/html.tpl"
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
