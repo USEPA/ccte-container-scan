@@ -90,8 +90,13 @@ runs:
       run: mkdir -p output
       shell: bash
 
+    - name: Setup Trivy
+      uses: aquasecurity/setup-trivy@0.2.5
+      with:
+        version: v0.69.1
+
     - name: Run security scan on the container
-      uses: aquasecurity/trivy-action@0.33.1
+      uses: aquasecurity/trivy-action@0.34.1
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
@@ -100,6 +105,7 @@ runs:
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
+        skip-setup-trivy: true
 
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
