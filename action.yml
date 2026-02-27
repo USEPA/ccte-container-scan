@@ -91,7 +91,7 @@ runs:
       shell: bash
 
     - name: Setup Trivy
-      uses: aquasecurity/setup-trivy@0.2.5
+      uses: aquasecurity/setup-trivy@v0.2.5
       with:
         version: v0.69.1
 
