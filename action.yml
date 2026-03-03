@@ -94,6 +94,7 @@ runs:
       uses: aquasecurity/setup-trivy@v0.2.5
       with:
         version: v0.69.1
+        cache: true
 
     - name: Run security scan on the container
       uses: aquasecurity/trivy-action@0.34.1
