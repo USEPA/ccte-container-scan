@@ -90,19 +90,13 @@ runs:
       run: mkdir -p output
       shell: bash
 
-    - name: Setup Trivy
-      uses: aquasecurity/setup-trivy@v0.2.5
-      with:
-        version: v0.69.1
-        cache: true
-
     - name: Run security scan on the container
       uses: aquasecurity/trivy-action@0.34.1
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
         format: template
-        template: "@$HOME/.local/bin/trivy-bin/contrib/html.tpl"
+        template: "/.local/bin/trivy-bin/contrib/html.tpl"
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
