@@ -90,6 +90,10 @@ runs:
       run: mkdir -p output
       shell: bash
 
+    - name: Add Trivy to PATH
+      shell: bash
+      run: echo "/.local/bin/trivy-bin" >> $GITHUB_PATH
+
     - name: Run security scan on the container
       uses: aquasecurity/trivy-action@0.34.1
       id: scan
