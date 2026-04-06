@@ -94,6 +94,7 @@ runs:
       run: |
         mkdir -p ./trivy-template
         curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o ./trivy-template/html.tpl
+      shell: bash
 
     - name: Run security scan on the container
       uses: aquasecurity/trivy-action@0.35.0
