@@ -90,21 +90,21 @@ runs:
       run: mkdir -p output
       shell: bash
 
-    - name: Add Trivy to PATH
-      shell: bash
-      run: echo "/.local/bin/trivy-bin" >> $GITHUB_PATH
+    - name: Download HTML template
+      run: |
+        mkdir -p ./trivy-template
+        curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o ./trivy-template/html.tpl
 
     - name: Run security scan on the container
-      uses: aquasecurity/trivy-action@0.34.1
+      uses: aquasecurity/trivy-action@0.35.0
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
         format: template
-        template: "/.local/bin/trivy-bin/contrib/html.tpl"
+        template: "@./trivy-template/html.tpl"
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
-        skip-setup-trivy: true
 
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
