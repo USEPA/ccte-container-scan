@@ -97,7 +97,7 @@ runs:
       shell: bash
 
     - name: Run security scan on the container
-      uses: aquasecurity/trivy-action@0.35.0
+      uses: aquasecurity/trivy-action@v0.36.0
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
@@ -106,6 +106,9 @@ runs:
         output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
+      env:
+        TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
+        TRIVY_TIMEOUT: 20m
 
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
