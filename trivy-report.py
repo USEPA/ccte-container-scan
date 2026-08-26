@@ -250,6 +250,5 @@ def main():
     print(out)
     return 1 if total and (env("REPORT_EXIT_CODE") or "1") != "0" else 0
 
-
 if __name__ == "__main__":
     sys.exit(main())
