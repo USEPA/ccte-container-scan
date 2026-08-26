@@ -37,43 +37,6 @@ inputs:
     description: 'Contents of the .npmrc file (optional)'
     required: false
     default: ''
-  base-image:
-    description: 'Base image for the Docker build'
-    required: false
-    default: ""
-  severity:
-    description: 'Comma-separated severities included in the Trivy report'
-    required: false
-    default: 'CRITICAL,HIGH'
-
-outputs:
-  total:
-    description: 'Total number of findings'
-    value: ${{ steps.layer-report.outputs.total }}
-  fixable:
-    description: 'Number of vulnerabilities with a published fix'
-    value: ${{ steps.layer-report.outputs.fixable }}
-  image_level:
-    description: 'Number of findings attributed to the base image'
-    value: ${{ steps.layer-report.outputs.image_level }}
-  app_level:
-    description: 'Number of findings attributed to application layers'
-    value: ${{ steps.layer-report.outputs.app_level }}
-  critical:
-    description: 'Number of critical findings'
-    value: ${{ steps.layer-report.outputs.critical }}
-  high:
-    description: 'Number of high findings'
-    value: ${{ steps.layer-report.outputs.high }}
-  medium:
-    description: 'Number of medium findings'
-    value: ${{ steps.layer-report.outputs.medium }}
-  low:
-    description: 'Number of low findings'
-    value: ${{ steps.layer-report.outputs.low }}
-  unknown:
-    description: 'Number of findings with unknown severity'
-    value: ${{ steps.layer-report.outputs.unknown }}
 
 runs:
   using: 'composite'
@@ -124,9 +87,13 @@ runs:
       shell: bash
 
     - name: Create Output Folder
-      env:
-        REPORT_HTML: ${{ inputs.output_path }}
-      run: mkdir -p "$(dirname "$REPORT_HTML")"
+      run: mkdir -p output
+      shell: bash
+
+    - name: Download HTML template
+      run: |
+        mkdir -p ./trivy-template
+        curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o ./trivy-template/html.tpl
       shell: bash
 
     - name: Run security scan on the container
@@ -134,41 +101,20 @@ runs:
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
-        format: json
-        output: trivy-report.json
+        format: template
+        template: "@./trivy-template/html.tpl"
+        output: ${{ inputs.output_path }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
       env:
         TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
         TRIVY_TIMEOUT: 20m
 
-    - name: Collect base image layer IDs
-      if: ${{ inputs.base-image != '' }}
-      shell: bash
-      env:
-        BASE_IMAGE: ${{ inputs.base-image }}
-      run: |
-        docker image inspect "$BASE_IMAGE" > /dev/null 2>&1 || docker pull "$BASE_IMAGE"
-        docker image inspect "$BASE_IMAGE" --format '{{json .RootFS.Layers}}' > trivy-report-base-diffids.json
-
-    - name: Layer report
-      id: layer-report
-      shell: bash
-      env:
-        REPORT_JSON: trivy-report.json
-        REPORT_HTML: ${{ inputs.output_path }}
-        REPORT_BASE_DIFFIDS: trivy-report-base-diffids.json
-        BASE_IMAGE: ${{ inputs.base-image }}
-        REPORT_TARGET: ${{ env.IMAGE_NAME }}
-        REPORT_SEVERITY: ${{ inputs.severity }}
-        REPORT_EXIT_CODE: "0"
-      run: python3 "${{ github.action_path }}/trivy-report.py"
-
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.IMAGE_NAME }}-cs-report
-        path: ${{ inputs.output_path }}
+        path: output
 
     - name: Remove previous Trivy report
       run: rm -rf ${{ inputs.cleanup_path }}
