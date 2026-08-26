@@ -131,7 +131,7 @@ def main():
             i, instr = lmap.get(d, (-1, "(not attributed to a layer)"))
             org = "unclassified" if not base else ("image" if d in base else "app")
             fx = v.get("FixedVersion") or ""
-            act = ("No upstream fix. POA&M entry required." if not fx else
+            act = ("No fix published upstream yet." if not fx else
                    "Rebuild on a newer %s, or copa patch. Not a Dockerfile fix." % BASE
                    if org == "image" else
                    "Fixed in %s. Layer origin unknown -- pass a base image ref." % fx
@@ -238,8 +238,6 @@ def main():
     out = "\n".join(md).rstrip() + "\n"
     if env("REPORT_MD"):
         open(env("REPORT_MD"), "w").write(out)
-    if env("GITHUB_STEP_SUMMARY"):
-        open(env("GITHUB_STEP_SUMMARY"), "a").write(out)
     if env("GITHUB_OUTPUT"):
         with open(env("GITHUB_OUTPUT"), "a") as fh:
             fh.write("total=%d\nfixable=%d\nimage_level=%d\napp_level=%d\n"
