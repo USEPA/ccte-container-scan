@@ -9,6 +9,7 @@ import json
 import os
 import sys
 
+OSPKG = ("alpine", "debian", "ubuntu", "redhat", "rocky", "almalinux", "amazon")
 
 env = os.getenv
 SEV = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
@@ -159,6 +160,8 @@ def main():
     total, nfix = len(vulns) + len(extras), sum(1 for r in vulns if r["fix"])
     nimg = sum(len(rows) for k, rows in secs if k[3] == "image")
     napp = sum(len(rows) for k, rows in secs if k[3] == "app")
+    napp_os = sum(len(rows) for k, rows in secs if k[3] == "app" and k[2] in OSPKG)
+    napp_lang = sum(len(rows) for k, rows in secs if k[3] == "app" and k[2] not in OSPKG)
     cnt = {}
     for s in [r["sev"] for r in vulns] + [e[1] for e in extras]:
         cnt[s] = cnt.get(s, 0) + 1
@@ -170,9 +173,9 @@ def main():
          '<div class="wrap"><h1>Container scan &mdash; layer attribution</h1>'
          '<p class="img">%s</p><div class="tally">' % esc(target)]
     H += ['<div><div class="t-n">%d</div><div class="t-l">%s</div></div>' % (n, lbl)
-          for lbl, n in (("Image level", nimg), ("App level", napp),
-                       ("No fix available", sum(1 for r in vulns if not r["fix"])),
-                       ("Total", total))]
+          for lbl, n in (("Image level", nimg), ("OS packages", napp_os),
+                         ("Language packages", napp_lang), ("No fix available", sum(1 for r in vulns if not r["fix"])),
+                         ("Total", total))]
     H.append("</div>")
     if not total:
         H.append('<p class="clean">No findings at the requested severities.</p>')
@@ -241,7 +244,8 @@ def main():
     if env("GITHUB_OUTPUT"):
         with open(env("GITHUB_OUTPUT"), "a") as fh:
             fh.write("total=%d\nfixable=%d\nimage_level=%d\napp_level=%d\n"
-                     % (total, nfix, nimg, napp))
+                     "os_level=%d\napp_dep_level=%d\n"
+                     % (total, nfix, nimg, napp, napp_os, napp_lang))
             fh.writelines("%s=%d\n" % (s.lower(), cnt.get(s, 0)) for s in SEV)
     print(out)
     return 1 if total and (env("REPORT_EXIT_CODE") or "1") != "0" else 0
