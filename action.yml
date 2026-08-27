@@ -59,6 +59,12 @@ outputs:
   app_level:
     description: 'Number of findings attributed to application layers'
     value: ${{ steps.layer-report.outputs.app_level }}
+  os_level:
+    description: 'Number of findings attributed to OS packages'
+    value: ${{ steps.layer-report.outputs.os_level }}
+  app_dep_level:
+    description: 'Number of findings attributed to application dependencies (npm, jar, pip, go)'
+    value: ${{ steps.layer-report.outputs.app_dep_level }}
   critical:
     description: 'Number of critical findings'
     value: ${{ steps.layer-report.outputs.critical }}
@@ -74,6 +80,7 @@ outputs:
   unknown:
     description: 'Number of findings with unknown severity'
     value: ${{ steps.layer-report.outputs.unknown }}
+
 
 runs:
   using: 'composite'
