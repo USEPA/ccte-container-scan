@@ -133,7 +133,7 @@ def main():
             org = "unclassified" if not base else ("image" if d in base else "app")
             fx = v.get("FixedVersion") or ""
             act = ("No fix published upstream yet." if not fx else
-                   "Rebuild on a newer %s, or copa patch. Not a Dockerfile fix." % BASE
+                   "Rebuild on a newer %s." % BASE
                    if org == "image" else
                    "Fixed in %s. Layer origin unknown -- pass a base image ref." % fx
                    if org == "unclassified" else
