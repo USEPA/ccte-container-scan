@@ -81,6 +81,7 @@ outputs:
     description: 'Number of findings with unknown severity'
     value: ${{ steps.layer-report.outputs.unknown }}
 
+
 runs:
   using: 'composite'
   steps:
