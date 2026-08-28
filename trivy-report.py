@@ -186,9 +186,11 @@ def main():
             H.append('<div class="bound"><span></span><span><b>base image ends</b>'
                      '</span></div>')
             drawn = True
+        chip = ("base" if org == "image" else 
+                ("os" if pt in OSPKG else "language") if org == "app" else org)
         H.append('<div class="row"><div class="rail"><span class="lidx">%s</span>'
                  '<span class="chip %s">%s</span></div><div class="body"><p class="cmd">'
-                 '%s</p>' % ("&mdash;" if i < 0 else "%02d" % i, org, org, esc(instr)))
+                 '%s</p>' % ("&mdash;" if i < 0 else "%02d" % i, org, chip, esc(instr)))
         H += ['<div class="f"><div class="f-h"><span class="sev %s">%s</span><span>%s</span>'
               '<span class="pkg">%s %s &rarr; %s</span></div><div class="act %s">%s</div>'
               '</div>' % (r["sev"], r["sev"], esc(r["id"]), esc(r["pkg"]), esc(r["ins"]),
