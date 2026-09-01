@@ -175,7 +175,10 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.IMAGE_NAME }}-cs-report
-        path: ${{ inputs.output_path }}
+        path: |
+                ${{ inputs.output_path }}
+                trivy-report.json
+
 
     - name: Remove previous Trivy report
       run: rm -rf ${{ inputs.cleanup_path }}
