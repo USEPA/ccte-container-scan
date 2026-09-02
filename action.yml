@@ -136,13 +136,19 @@ runs:
       run: mkdir -p "$(dirname "$REPORT_HTML")"
       shell: bash
 
+    - name: Set report paths
+      shell: bash
+      run: |
+        echo "REPORT_JSON=$(dirname '${{ inputs.output_path }}')/trivy-report.json" >> "$GITHUB_ENV"
+       
+
     - name: Run security scan on the container
       uses: aquasecurity/trivy-action@v0.36.0
       id: scan
       with:
         image-ref: ${{ env.IMAGE_NAME }}
         format: json
-        output: trivy-report.json
+        output: ${{ env.REPORT_JSON }}
         severity: 'CRITICAL,HIGH'
         timeout: 20m
       env:
@@ -162,7 +168,7 @@ runs:
       id: layer-report
       shell: bash
       env:
-        REPORT_JSON: trivy-report.json
+        REPORT_JSON: ${{ env.REPORT_JSON }}
         REPORT_HTML: ${{ inputs.output_path }}
         REPORT_BASE_DIFFIDS: trivy-report-base-diffids.json
         BASE_IMAGE: ${{ inputs.base-image }}
@@ -177,7 +183,7 @@ runs:
         name: ${{ env.IMAGE_NAME }}-cs-report
         path: |
                 ${{ inputs.output_path }}
-                trivy-report.json
+                ${{ env.REPORT_JSON }}
 
 
     - name: Remove previous Trivy report
