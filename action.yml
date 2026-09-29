@@ -45,6 +45,15 @@ inputs:
     description: 'Comma-separated severities included in the Trivy report'
     required: false
     default: 'CRITICAL,HIGH'
+  trivy_vulnerability_reports_url:
+    description: 'URL to the Trivy vulnerability reports'
+    required: false
+    default: ''
+  trivy_vulnerability_reports_ingest_token:
+    description: 'Ingest token for the Trivy vulnerability reports'
+    required: false
+    default: ''
+  
 
 outputs:
   total:
@@ -176,6 +185,23 @@ runs:
         REPORT_SEVERITY: ${{ inputs.severity }}
         REPORT_EXIT_CODE: "0"
       run: python3 "${{ github.action_path }}/trivy-report.py"
+
+    - name: Upload Trivy vulnerability reports
+      if: ${{ always() && inputs.trivy_vulnerability_reports_url != '' }}
+      shell: bash
+      continue-on-error: true
+      env:
+        TVR_URL: ${{ inputs.trivy_vulnerability_reports_url }}
+        TVR_INGEST_TOKEN: ${{ inputs.trivy_vulnerability_reports_ingest_token }}
+      run: |
+        token=$(printf '%s' "$TVR_INGEST_TOKEN" | tr -d '\r\n ')
+        code=$(curl -sS -o response.json -w '%{http_code}' -X POST \
+          "${TVR_URL%/}/ingest?source=${GITHUB_REPOSITORY//\//%2F}" \
+          -H "X-Ingest-Token: $token" \
+          -H "Content-Type: application/json" \
+          --data-binary @"$REPORT_JSON")
+        cat response.json; echo
+        [ "$code" = "200" ]
 
     - name: Use the Upload Artifact GitHub Action
       uses: actions/upload-artifact@v4
