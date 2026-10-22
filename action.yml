@@ -136,7 +136,7 @@ runs:
       shell: bash
 
     - name: Docker build
-      run: docker build -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.build_args }} ${{ inputs.context }}
+      run: docker build --pull -f ${{ inputs.dockerfile }} -t ${{ env.IMAGE_NAME }} ${{ inputs.build_args }} ${{ inputs.context }}
       shell: bash
 
     - name: Create Output Folder
@@ -170,7 +170,7 @@ runs:
       env:
         BASE_IMAGE: ${{ inputs.base-image }}
       run: |
-        docker image inspect "$BASE_IMAGE" > /dev/null 2>&1 || docker pull "$BASE_IMAGE"
+        docker pull "$BASE_IMAGE"
         docker image inspect "$BASE_IMAGE" --format '{{json .RootFS.Layers}}' > trivy-report-base-diffids.json
 
     - name: Layer report
